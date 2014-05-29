@@ -1,0 +1,6 @@
+{
+    "directory": "app/bower_components",
+    "proxy": "http://uskihsvpcflow.kih.kmart.com:8080",
+    "https-proxy": "http://uskihsvpcflow.kih.kmart.com:8080",
+    "strict-ssl": false
+}
