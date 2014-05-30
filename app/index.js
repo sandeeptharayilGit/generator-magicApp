@@ -28,14 +28,19 @@ var AngulGenerator = yeoman.generators.Base.extend({
       message: 'What is your application\'s name ?'
     },{
       type: 'confirm',
-      name: 'addDemoSection',
-      message: 'Would you like to generate a demo section ?',
+      name: 'bootstrap',
+      message: 'Would you like to include bootstrap in your project ?',
       default: true
+    },
+    {
+      name: 'proxy',
+      message: 'Please provide proxy url if you are under any proxy network? (press Enter if not)'
     }];
 
     this.prompt(prompts, function (props) {
       this.appName = props.appName;
-      this.addDemoSection = props.addDemoSection;
+      this.bootstrap = props.bootstrap;
+      this.proxy = props.proxy;
 
       done();
     }.bind(this));
@@ -43,24 +48,31 @@ var AngulGenerator = yeoman.generators.Base.extend({
 
   app: function () {
     this.mkdir("app");
-    this.mkdir("app/css");
-    this.mkdir("app/sections");
+    this.mkdir("app/styles");
+    this.mkdir("app/scripts");
+    this.mkdir("app/images");
     this.mkdir("build");
 
 
     this.copy("_gruntfile.js", "Gruntfile.js");
-    //this.copy("_package.json", "package.json");
-    this.copy('_bower.json', 'bower.json');
+    this.copy('editorconfig', '.editorconfig');
+    this.copy('jshintrc', '.jshintrc');
+
     var context = { 
           app_name: this.appName 
         };
-this.template("_package.json", "package.json", context);
+    this.template("_bower.json", "bower.json", context);
+    this.template("_package.json", "package.json", context);
+
+    var context = { 
+          proxy: this.proxy?',\n    "proxy": "'+this.proxy+'",\n    "https-proxy": "'+this.proxy+'",\n    "strict-ssl": false':''
+        };
+     this.template('_.bowerrc', '.bowerrc',context);
+   
   },
 
   projectfiles: function () {
-    this.copy('editorconfig', '.editorconfig');
-    this.copy('jshintrc', '.jshintrc');
-    this.copy('_.bowerrc', '.bowerrc');
+
 
     this.copy("_main.css", "app/css/main.css");    
     this.copy("_footer.html", "app/footer.html");

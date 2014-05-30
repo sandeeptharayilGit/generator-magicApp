@@ -3,7 +3,18 @@
 <head>
     <meta charset="utf-8">
     <title><%= site_name %></title>
-    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.12.0/css/semantic.min.css">
-    <link rel="stylesheet" href="css/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+       <!-- bower:css -->
+    	<!-- endbower -->
+    <link rel="stylesheet" href="styles/main.css">
 </head>
-<body>
+<body ng-class="bodyColour" ng-controller="chromeapp-mainCntrl">
+		<!-- ajax loader image -->
+		<div id="loading">
+			<img src="images/loader.gif" class="ajax-loader"></img>
+		</div>
+	
+		<div ng-view class="ng-cloak"></div>
+	
+	
+	</body>

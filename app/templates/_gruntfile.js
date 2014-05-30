@@ -13,6 +13,27 @@ module.exports = function(grunt) {
 				}
 			}
 		},
+		wiredep: {
+
+		  target: {
+
+		    // Point to the files that should be updated when
+		    // you run `grunt wiredep`
+		    src: [
+		      'build/index.html'   // .html support..
+		    ],
+
+		    // Optional:
+		    // ---------
+		    cwd: '',
+		    dependencies: true,
+		    devDependencies: false,
+		    exclude: [],
+		    fileTypes: {},
+		    ignorePath: '',
+		    overrides: {}
+		  }
+		},
 		connect: {
 			server: {
 				options: {
@@ -53,8 +74,9 @@ module.exports = function(grunt) {
 grunt.loadNpmTasks('grunt-contrib-connect');
 grunt.loadNpmTasks('grunt-contrib-cssmin');
 grunt.loadNpmTasks('grunt-contrib-concat');
+grunt.loadNpmTasks('grunt-wiredep');
 
 grunt.registerTask('serve', ['connect']);
-grunt.registerTask('build', ['concat', 'cssmin']);
+grunt.registerTask('build', ['concat', 'cssmin','wiredep']);
 grunt.registerTask('default', ['build']);
 };
