@@ -4,9 +4,9 @@ var path = require('path');
 var yeoman = require('yeoman-generator');
 var yosay = require('yosay');
 var chalk = require('chalk');
+var rimraf= require('rimraf');
 
-
-var AngulGenerator = yeoman.generators.Base.extend({
+var magicAppGenerator = yeoman.generators.Base.extend({
   init: function () {
     this.pkg = require('../package.json');
 
@@ -21,7 +21,8 @@ var AngulGenerator = yeoman.generators.Base.extend({
     var done = this.async();
 
     // Have Yeoman greet the user.
-    this.log(yosay('Welcome to the marvelous Angul generator!'));
+    this.log(yosay('Welcome to the marvelous Angular web application generator!'));
+
 
     var prompts = [{
       name: 'appName',
@@ -50,39 +51,64 @@ var AngulGenerator = yeoman.generators.Base.extend({
     this.mkdir("app");
     this.mkdir("app/styles");
     this.mkdir("app/scripts");
+    this.mkdir("app/scripts/controllers");
+    this.mkdir("app/scripts/services");
+    this.mkdir("app/scripts/directives");
+    this.mkdir("app/scripts/filters");
     this.mkdir("app/images");
     this.mkdir("build");
+    this.mkdir("tmp");
 
+  },
 
+  templateFiles:function(){
+   var context = { 
+            site_name: this.appName , 
+            proxy: this.proxy?',\n    "proxy": "'+this.proxy+'",\n    "https-proxy": "'+this.proxy+'",\n    "strict-ssl": false':'',
+            app_name: this._.underscored(this.appName)+'App'
+          };
+      this.template("_bower.json", "bower.json", context);
+      this.template("_package.json", "package.json", context);
+      this.template('_.bowerrc', '.bowerrc',context);
+      this.template("_header.html", "tmp/header.html", context);
+      this.template("_body.html", "tmp/body.html", context);
+      this.template("_app.js", "app/scripts/app.js", context);
+      this.template("_errorHandler.js", "app/scripts/services/errorHandler.js", context);
+      this.template("_config.json", "app/scripts/config.json", context);
+      this.template("_interceptor.js", "app/scripts/services/interceptor.js", context);
+      this.template("_mainController.js", "app/scripts/controllers/mainController.js", context);
+  
+  },
+
+  copyFiles:function(){
     this.copy("_gruntfile.js", "Gruntfile.js");
     this.copy('editorconfig', '.editorconfig');
     this.copy('jshintrc', '.jshintrc');
+    this.copy("_main.css", "app/styles/main.css");
+    this.copy("_loader.gif", "app/images/loader.gif");
+    this.copy("_footer.html", "tmp/footer.html");
 
-    var context = { 
-          app_name: this.appName 
-        };
-    this.template("_bower.json", "bower.json", context);
-    this.template("_package.json", "package.json", context);
-
-    var context = { 
-          proxy: this.proxy?',\n    "proxy": "'+this.proxy+'",\n    "https-proxy": "'+this.proxy+'",\n    "strict-ssl": false':''
-        };
-     this.template('_.bowerrc', '.bowerrc',context);
-   
   },
 
-  projectfiles: function () {
+  concatFiles: function () {
 
+    var done = this.async();
+    
+    var finalFile='',partialFiles= ["tmp/header.html","tmp/body.html","tmp/footer.html"];
 
-    this.copy("_main.css", "app/css/main.css");    
-    this.copy("_footer.html", "app/footer.html");
-    var context = { 
-      site_name: this.appName 
+    for (var i = 0; i < partialFiles.length; i++) {
+     finalFile+=this.readFileAsString(partialFiles[i]);
     };
+    this.write('app/index.html', finalFile);
+    var self=this;
+    rimraf('tmp', function () {
+        self.log.info('Removing temp directory');
+      done();
+    });
+   
 
-    this.template("_header.html", "app/header.html", context);
   },
-  generateDemoSection: function(){
+ /* generateDemoSection: function(){
     if (this.addDemoSection) {
       var context = {
         content: "Demo Section",
@@ -116,7 +142,7 @@ var AngulGenerator = yeoman.generators.Base.extend({
     }
 
     this.write("app/menu.html", menu);
-  },
+  },*/
   runNpm: function(){
     var done = this.async();
     this.npmInstall("", function(){
@@ -126,4 +152,4 @@ var AngulGenerator = yeoman.generators.Base.extend({
   }
 });
 
-module.exports = AngulGenerator;
+module.exports = magicAppGenerator;

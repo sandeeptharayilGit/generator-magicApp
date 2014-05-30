@@ -1,15 +1,23 @@
 module.exports = function(grunt) {
 	grunt.initConfig({
+		distFolder: 'build',
+ 		srcFolder: 'app',
 		concat: {
-			dist: {
-				src: ["app/header.html", "app/menu.html", "app/sections/*.html", "app/footer.html"],
-				dest: "build/index.html"
-			}
-		},
+ 			app: {
+ 				src: ['<%= srcFolder %>/scripts/*.js', '<%= srcFolder %>/scripts/**/*.js'],
+ 				dest: '<%= distFolder %>/scripts/app.js'
+ 			}
+ 		},
+ 		ngmin: {
+ 			min: {
+ 				src: ['<%= distFolder %>/scripts/app.js'],
+ 				dest: '<%= distFolder %>/scripts/app.js'
+ 			}
+ 		},
 		cssmin: {
 			css: {
 				files: {
-					"build/css/main.css": ["app/css/*.css"]
+					"build/styles/main.css": ["app/styles/*.css"]
 				}
 			}
 		},
@@ -34,6 +42,18 @@ module.exports = function(grunt) {
 		    overrides: {}
 		  }
 		},
+		copy: {
+ 			main: {
+ 				files: [
+ 					{
+ 						expand: true,
+ 						cwd: '<%= srcFolder %>/',
+ 						src: ['images/**', 'views/**', 'scripts/json/**', 'index.html','scripts/config.json'],
+ 						dest: '<%= distFolder %>/'
+ 					}
+ 				]
+ 			}
+ 		},
 		connect: {
 			server: {
 				options: {
@@ -46,17 +66,19 @@ module.exports = function(grunt) {
 						var middleware = [];
 
 						middleware.push(function(req, res, next) {
-							if (req.url !== "/") return next();
+							console.log("Requesting... "+req.url);
+						//if (req.url !== "/") return next();
 
-							res.setHeader("Content-type", "text/html");
-							res.end(grunt.file.read("build/index.html"));
-						});
+							//res.setHeader("Content-type", "text/html");
 
-						middleware.push(function(req, res, next){
-							if (req.url !== "/css/main.css") return next();
+							if (req.url == "/") {
+								res.end(grunt.file.read("build/index.html"));
+							}else{
+								res.end(grunt.file.read("build"+req.url));
+							}
+						//return next();
 
-							res.setHeader("Content-type", "text/css");
-							res.end( grunt.file.read("build/css/main.css"));
+							
 						});
 
 						middleware.push(function(req, res){
@@ -75,8 +97,10 @@ grunt.loadNpmTasks('grunt-contrib-connect');
 grunt.loadNpmTasks('grunt-contrib-cssmin');
 grunt.loadNpmTasks('grunt-contrib-concat');
 grunt.loadNpmTasks('grunt-wiredep');
+grunt.loadNpmTasks('grunt-ngmin');
+grunt.loadNpmTasks('grunt-contrib-copy');
 
 grunt.registerTask('serve', ['connect']);
-grunt.registerTask('build', ['concat', 'cssmin','wiredep']);
+grunt.registerTask('build', ['concat','ngmin','copy','cssmin','wiredep']);
 grunt.registerTask('default', ['build']);
 };
