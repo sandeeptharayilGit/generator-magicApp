@@ -1,3 +1,36 @@
+var qs = require('querystring');
+var log4js = require('log4js');
+log4js.configure('log4js_configuration.json', {});
+var logger = log4js.getLogger('appLogger');
+logger.setLevel('INFO');
+
+var setLog=function(log){
+
+	switch (log.mode) {
+			case 'trace':
+			   logger.trace(log.data);
+			    break;
+			case 'debug':
+			   logger.debug(log.data);
+			    break;
+			case 'info':
+			   logger.info(log.data);
+			    break;
+			case 'warn':
+			   logger.warn(log.data);
+			    break;
+			case 'error':
+			   logger.error(log.data);
+			    break;
+			case 'fatal':
+			   logger.fatal(log.data);
+			    break;
+			default: 
+				logger.info(log.data);
+			}
+
+}
+
 module.exports = function(grunt) {
 	grunt.initConfig({
 		distFolder: 'build',
@@ -48,7 +81,7 @@ module.exports = function(grunt) {
  					{
  						expand: true,
  						cwd: '<%= srcFolder %>/',
- 						src: ['images/**', 'views/**', 'scripts/json/**', 'index.html','scripts/config.json'],
+ 						src: ['images/**', 'views/**', 'scripts/json/**','favicon.ico','index.html','scripts/config.json'],
  						dest: '<%= distFolder %>/'
  					}
  				]
@@ -66,14 +99,45 @@ module.exports = function(grunt) {
 						var middleware = [];
 
 						middleware.push(function(req, res, next) {
+							
 							console.log("Requesting... "+req.url);
-						//if (req.url !== "/") return next();
-
-							//res.setHeader("Content-type", "text/html");
-
-							if (req.url == "/") {
+								if (req.url == "/") {
+								res.setHeader("Content-type", "text/html");
 								res.end(grunt.file.read("build/index.html"));
-							}else{
+							}else if(req.url=='/log'){
+								if (req.method == 'POST') {
+							        var body = '';
+							        req.on('data', function (data) {
+							            body += data;
+							            // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
+							            if (body.length > 1e6) { 
+							                // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
+							                req.connection.destroy();
+							            }
+							        });
+							        req.on('end', function () {
+							        	
+							            setLog(JSON.parse(qs.parse(body).message));
+
+
+							        });
+							    }
+								res.statusCode = 200;
+								res.end();
+							}
+							else{
+								var urlArr=req.url.split('.')
+
+
+								if(urlArr[urlArr.length-1]=='css')
+								{
+									res.setHeader("Content-type", "text/css");
+								}else if (urlArr[urlArr.length-1]=='html'){
+									res.setHeader("Content-type", "text/html");
+								}else if (urlArr[urlArr.length-1]=='js'){
+									res.setHeader("Content-type", "application/javascript");
+								}
+
 								res.end(grunt.file.read("build"+req.url));
 							}
 						//return next();

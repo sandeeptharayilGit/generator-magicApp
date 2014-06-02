@@ -1,14 +1,13 @@
-var <%= app_name %> = angular.module("<%= app_name %>", [ 'ngRoute', 'ngSanitize', 'ngTouch','ngResource','ngAnimate','<%= app_name %>-application']);
+var <%= app_name %> = angular.module("<%= app_name %>", [ 'ngRoute', 'ngSanitize', 'ngTouch','ngResource','ngAnimate','<%= app_name %>-application','logger']);
 var <%= app_name %>Constants=angular.module('<%= app_name %>-constants', []);
 var commonSrv = angular.module('<%= app_name %>-commons', []);
 var <%= app_name %>controllers = angular.module('<%= app_name %>-controllers', []);
 var <%= app_name %>directives = angular.module('<%= app_name %>-directives', []);
 var <%= app_name %>services = angular.module('<%= app_name %>-services', []);
 var <%= app_name %>filters = angular.module('<%= app_name %>-filters', []);
-var <%= app_name %>logger = angular.module('<%= app_name %>-remotelogger', []);
 var <%= app_name %>Global={};
 angular.module('<%= app_name %>-application', [ '<%= app_name %>-commons', '<%= app_name %>-controllers','<%= app_name %>-directives', '<%= app_name %>-services',
-                                          '<%= app_name %>-constants','<%= app_name %>-filters','<%= app_name %>-remotelogger' ]);
+                                          '<%= app_name %>-constants','<%= app_name %>-filters']);
 
 //setting all urls from the <%= app_name %>Global.Routes (config.json)
 <%= app_name %>.config(['$routeProvider', function routeProvider($routeProvider) {

@@ -1,6 +1,6 @@
 'use strict';
 var loggerModule = angular.module('logger', []);
-loggerModule.value('ServiceUrl','http://loggerServiceUrl'); // provide service url
+loggerModule.value('ServiceUrl','http://localhost:9001/log'); // provide service url
 /**
  * Service that gives us a nice Angular-esque wrapper around the
  * stackTrace.js pintStackTrace() method. 
@@ -78,26 +78,32 @@ loggerModule.provider("$exceptionHandler",{
 
 
 
-loggerModule.factory('loggerService', function ($log, logWhiteList,$rootScope) {  
+loggerModule.factory('loggerService', function ($log, $rootScope,remoteLogger) {  
 	'use strict';
 	  return function (prefix) {                            
 	    return {
 	      info: extracted('info'),
 	      log:  extracted('log'),                           
 	      warn: extracted('warn'),                          
-	      error:extracted('error')                          
+	      error:extracted('error'),                          
+	      fatal:extracted('fatal'),
 	    };                                                 
 	    function extracted(prop) {                          
 	        return function () {                            
 	          var args = [].slice.call(arguments);  
 	        
-	          if (prefix) {  
-	        	remoteLogger.pushToServer(args.join());
-	        	
-	            args.unshift(' [' + prefix + '] - ');            
-	            args.unshift((new Date()).toLocaleTimeString()); // appending date and class name
-	            $log[prop].apply($log, args) ; 
-	          }                                             
+	          if (prefix) {
+             try{
+		            args.unshift(' [' + prefix + '] - ');
+		            remoteLogger.pushToServer(angular.toJson({mode:prop,data:args.join()} ));
+
+		            args.unshift(new Date().toLocaleTimeString());
+		            // appending date and class name
+		           
+		            $log[prop].apply($log, args);
+		        }catch(e){}
+	              
+          		}                                             
 	         
 	         
 	        };                                               
