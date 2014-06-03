@@ -1,6 +1,6 @@
 {
   "name": "generator-magicapp",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Yeoman generator for creating Angular projects.",
   "license": "MIT",
   "main": "app/index.js",
